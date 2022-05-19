@@ -29,20 +29,20 @@ INSERT INTO role (title, salary, department_id)
 VALUES ("Lead", 55000, 1);
 
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Bullwinkle", "Moose", 8, 3);
+VALUES ("Bullwinkle", "Moose", 8, 2);
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Rocket (Rocky)", "Squirrel", 6, 3);
+VALUES ("Rocket (Rocky)", "Squirrel", 6, null);
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Boris", "Badenov", 2, 1);
+VALUES ("Boris", "Badenov", 2, 5);
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Natasha", "Fatale", 4, 1);
+VALUES ("Natasha", "Fatale", 4, 5);
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Fearless", "Leader", 3, 2);
+VALUES ("Fearless", "Leader", 3, null);
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("H.R.", "Pufnstuf", 3, 4);
+VALUES ("H.R.", "Pufnstuf", 3, null);
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Wilhelmina", "Witchiepoo", 7, 1);
+VALUES ("Wilhelmina", "Witchiepoo", 7, null);
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Cass", "Elliot", 5, 3);
+VALUES ("Cass", "Elliot", 5, 7);
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Jimmy", "", 1, 3);
+VALUES ("Jimmy", "", 1, 6);
