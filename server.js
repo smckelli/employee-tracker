@@ -128,12 +128,12 @@ function addADepartment() {
 };
 
 function addARole() { 
-    db.query("SELECT role.title AS Title, role.salary AS Salary FROM role",   function(err, res) {
+    db.query("SELECT role.title AS title, role.salary AS salary FROM role",   function(err, res) {
       inquirer.prompt([
           {
             name: "title",
             type: "input",
-            message: "What is the roles title?"
+            message: "What is the role?"
           },
           {
             name: "salary",
@@ -158,3 +158,71 @@ function addARole() {
       });
     });
 };
+
+var roleArr = [];
+function selectRole() {
+  db.query("SELECT * FROM role", function(err, res) {
+    if (err) throw err
+    for (var i = 0; i < res.length; i++) {
+      roleArr.push(res[i].title);
+    }
+
+  })
+  return roleArr;
+}
+
+var managersArr = [];
+function selectManager() {
+  db.query("SELECT first_name, last_name FROM employee WHERE manager_id IS NULL", function(err, res) {
+    if (err) throw err
+    for (var i = 0; i < res.length; i++) {
+      managersArr.push(res[i].first_name);
+    }
+
+  })
+  return managersArr;
+}
+
+function addAnEmployee() { 
+    inquirer.prompt([
+        {
+          name: "firstname",
+          type: "input",
+          message: "Enter the employee's first name "
+        },
+        {
+          name: "lastname",
+          type: "input",
+          message: "Enter the employee's last name "
+        },
+        {
+          name: "role",
+          type: "list",
+          message: "What is the employee's role? ",
+          choices: selectRole()
+        },
+        {
+            name: "choice",
+            type: "rawlist",
+            message: "Whats the employee's managers name?",
+            choices: selectManager()
+        }
+    ]).then(function (val) {
+      var roleId = selectRole().indexOf(val.role) + 1
+      var managerId = selectManager().indexOf(val.choice) + 1
+      db.query("INSERT INTO employee SET ?", 
+      {
+          first_name: val.firstName,
+          last_name: val.lastName,
+          manager_id: managerId,
+          role_id: roleId
+          
+      }, function(err){
+          if (err) throw err
+          console.table(val)
+          prompt()
+      })
+
+  })
+};
+
