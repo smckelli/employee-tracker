@@ -26,7 +26,7 @@ function prompt() {
     inquirer
         .prompt({
             type: "list",
-            name: "choice",
+            name: "choices",
             message: "Please choose an option:",
             choices: [
                 "View All Departments",
@@ -39,6 +39,7 @@ function prompt() {
                 "Exit"]
         })
         .then ((answers) => {
+            
             const {choices} = answers;
 
                 if (choices === "View All Departments") {
@@ -73,4 +74,87 @@ function prompt() {
                     exit();
                 }
         })
+};
+
+function viewAllDepartments() {
+    db.query("SELECT * FROM department",
+    function(err, res) {
+      if (err) throw err
+      console.table(res)
+      prompt()
+    })
+};
+
+function viewAllRoles() {
+    db.query("SELECT * FROM role",
+    function(err, res) {
+      if (err) throw err
+      console.table(res)
+      prompt()
+    })
+};
+
+function viewAllEmployees() {
+    db.query("SELECT * FROM employee",
+    function(err, res) {
+      if (err) throw err
+      console.table(res)
+      prompt()
+    })
+};
+
+function addADepartment() { 
+
+    inquirer.prompt([
+        {
+          name: "name",
+          type: "input",
+          message: "What department would you like to add?"
+        }
+    ]).then(function(res) {
+        var query = db.query(
+            "INSERT INTO department SET ? ",
+            {
+              name: res.name
+            
+            },
+            function(err) {
+                if (err) throw err
+                console.table(res);
+                prompt();
+            }
+        )
+    })
+};
+
+function addARole() { 
+    db.query("SELECT role.title AS Title, role.salary AS Salary FROM role",   function(err, res) {
+      inquirer.prompt([
+          {
+            name: "title",
+            type: "input",
+            message: "What is the roles title?"
+          },
+          {
+            name: "salary",
+            type: "input",
+            message: "What is the salary for this role?"
+  
+          } 
+      ]).then(function(res) {
+          db.query(
+              "INSERT INTO role SET ?",
+              {
+                title: res.title,
+                salary: res.salary,
+              },
+              function(err) {
+                  if (err) throw err
+                  console.table(res);
+                  prompt();
+              }
+          )
+  
+      });
+    });
 };
