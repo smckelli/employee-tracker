@@ -1,5 +1,8 @@
+--  Using the employeedb database
+
 USE employeedb;
 
+-- Seed data to fill the department table with the name value
 INSERT INTO department (name)
 VALUES ("Operations");
 INSERT INTO department (name)
@@ -10,6 +13,8 @@ INSERT INTO department (name)
 VALUES ("Support Staff");
 INSERT INTO department (name)
 VALUES ("Leadership");
+
+-- Seed data to fill the role table with the title, salary, and department_id values
 
 INSERT INTO role (title, salary, department_id)
 VALUES ("Laborer", 45000, 1);
@@ -27,6 +32,8 @@ INSERT INTO role (title, salary, department_id)
 VALUES ("Secretary", 45000, 4);
 INSERT INTO role (title, salary, department_id)
 VALUES ("Lead", 55000, 1);
+
+-- Seed data to fill the employee table with the first_name, last_name, role_id, and manager_id values
 
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES ("Bullwinkle", "Moose", 8, 2);

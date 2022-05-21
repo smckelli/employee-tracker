@@ -1,3 +1,5 @@
+// requiring in the npm functionality of mysql2, inquirer, and console.table
+
 const mysql = require("mysql2");
 const inquirer = require("inquirer");
 const consoleTable = require("console.table");
@@ -11,17 +13,18 @@ const db = mysql.createConnection({
         password: 'root',
         database: 'employeedb'
     },
-    console.log('Connected to the employee database.')
+    // console.log('Connected to the employee database.')
 );
 
 
-// connect to the mysql server and sql database
+// Connect to the mysql server and sql database
 db.connect(function (err) {
     if (err) throw err;
-    // run the start function after the connection is made to prompt the user
+    // Run the start function after the connection is made to prompt the user
     prompt();
 });
 
+// This function initiates the choice selection for database manipulation
 function prompt() {
     inquirer
         .prompt({
@@ -36,8 +39,10 @@ function prompt() {
                 "Add a Role",
                 "Add an Employee",
                 "Update an Employee Role",
-                "Exit"]
+                "Exit"
+            ]
         })
+        // ...and then redirects the choice to appropriate function associated with the choice
         .then ((answers) => {
             
             const {choices} = answers;
@@ -71,10 +76,15 @@ function prompt() {
                 }
 
                 if (choices === "Exit") {
-                    exit();
+                    console.log('Be well!')
+                    setTimeout((function() {
+                        return process.exit(22);
+                    }), 1000);
                 }
         })
 };
+
+// vv This function shows the table of all the departments in the database vv
 
 function viewAllDepartments() {
     db.query("SELECT * FROM department",
@@ -85,6 +95,8 @@ function viewAllDepartments() {
     })
 };
 
+// vv This function shows the table of all the roles in the database vv
+
 function viewAllRoles() {
     db.query("SELECT * FROM role",
     function(err, res) {
@@ -93,6 +105,8 @@ function viewAllRoles() {
       prompt()
     })
 };
+
+// vv This function shows the table of all the employees in the database vv
 
 function viewAllEmployees() {
     db.query("SELECT * FROM employee",
@@ -103,15 +117,19 @@ function viewAllEmployees() {
     })
 };
 
-function addADepartment() { 
+// vv This function allows the user the ability to add a new department into the database vv
 
+function addADepartment() { 
+    // inquirer asks for the new department name
     inquirer.prompt([
         {
           name: "name",
           type: "input",
           message: "What department would you like to add?"
         }
-    ]).then(function(res) {
+    ])
+    // ...then the name is inserted into the department table in column 'name'
+    .then(function(res) {
         var query = db.query(
             "INSERT INTO department SET ? ",
             {
@@ -120,15 +138,20 @@ function addADepartment() {
             },
             function(err) {
                 if (err) throw err
+                // ...and the console.table shows the user exactly what he or she is adding
                 console.table(res);
+                // ...before taking us back to the top menu
                 prompt();
             }
         )
     })
 };
 
+// vv This function allows the user the ability to add a new role into the database vv
+
 function addARole() { 
-    db.query("SELECT role.title AS title, role.salary AS salary FROM role",   function(err, res) {
+    // inquirer asks for the new role name- but also the salary for that role
+    // db.query("SELECT role.title FROM role JOIN department ON role.department_id = department.id",   function(err, res) {
       inquirer.prompt([
           {
             name: "title",
@@ -140,24 +163,53 @@ function addARole() {
             type: "input",
             message: "What is the salary for this role?"
   
+          },
+          {
+            name: "department",
+            type: "list",
+            message: "What is the department for this role?",
+            choices: selectDepartment()
+  
           } 
-      ]).then(function(res) {
+      ])
+      // ...then the name is inserted into the role table in columns 'title' and 'salary'
+      .then(function(res) {
+        var departmentId = selectRole().indexOf(res.department) + 1
           db.query(
               "INSERT INTO role SET ?",
               {
                 title: res.title,
                 salary: res.salary,
+                department_id: departmentId
               },
               function(err) {
                   if (err) throw err
+                  // ...and the console.table shows the user exactly what he or she is adding
                   console.table(res);
+                  // ...before taking us back to the top menu
                   prompt();
               }
           )
   
       });
-    });
+    };
+;
+
+//  vv This small function iterates and distributes all of the department names into the array 'departmentArr'
+
+var departmentArr = [];
+function selectDepartment() {
+  db.query("SELECT * FROM department", function(err, res) {
+    if (err) throw err
+    for (var i = 0; i < res.length; i++) {
+      departmentArr.push(res[i].name);
+    }
+
+  })
+  return departmentArr;
 };
+
+//  vv This small function iterates and distributes all of the employees' first names into the array 'employeeArr'
 
 var employeeArr = [];
 function selectEmployee() {
@@ -169,7 +221,9 @@ function selectEmployee() {
 
   })
   return employeeArr;
-}
+};
+
+//  vv This small function iterates and distributes all of the employees' roles into the array 'roleArr'
 
 var roleArr = [];
 function selectRole() {
@@ -181,45 +235,56 @@ function selectRole() {
 
   })
   return roleArr;
-}
+};
 
-var managersArr = [];
+//  vv This small function iterates and distributes all of the managers' first names into the array 'managerArr'
+
+var managerArr = [];
 function selectManager() {
   db.query("SELECT first_name, last_name FROM employee WHERE manager_id IS NULL", function(err, res) {
     if (err) throw err
     for (var i = 0; i < res.length; i++) {
-      managersArr.push(res[i].first_name);
+      managerArr.push(res[i].first_name);
     }
 
   })
-  return managersArr;
-}
+  return managerArr;
+};
+
+// vv This function allows the user the ability to add a new employee into the database vv
+
 
 function addAnEmployee() { 
+    // inquirer asks for the new employee's first name
     inquirer.prompt([
         {
           name: "firstName",
           type: "input",
           message: "Enter the employee's first name "
         },
+        // ...and last name...
         {
           name: "lastName",
           type: "input",
           message: "Enter the employee's last name "
         },
+        // ...and lists the choices for roles from the role array (accounting for any additions to the roles)...
         {
           name: "role",
           type: "list",
           message: "What is the employee's role? ",
           choices: selectRole()
         },
+        // ...and lists the choices for namagers from the manager array (accounting for any additions to the managers)...
         {
             name: "choice",
             type: "rawlist",
             message: "Whats the employee's managers name?",
             choices: selectManager()
         }
-    ]).then(function (val) {
+    ])
+    // ...then the new employee information is inserted into the employee table in columns 'first_name' and 'last_name' 'role_id' and 'manager_id'
+    .then(function (val) {
       var roleId = selectRole().indexOf(val.role) + 1
       var managerId = selectManager().indexOf(val.choice) + 1
       db.query("INSERT INTO employee SET ?", 
@@ -231,18 +296,21 @@ function addAnEmployee() {
           
       }, function(err){
           if (err) throw err
+          // ...and the console.table shows the user exactly what he or she is adding...
           console.table(val)
+            // ...before taking us back to the top menu
           prompt()
       })
 
   })
 };
 
+// vv This function allows the user the ability to change an aemployee's role within the existing table in the database vv
+
 function updateEmployeeRole() {
     db.query("SELECT employee.first_name, role.title FROM employee JOIN role ON employee.role_id = role.id;", function(err, res) {
-    // console.log(res)
      if (err) throw err
-     console.log(res)
+    // inquirer asks for the first name of the employee whose role is changing from the generated list of emplyee first names
     inquirer.prompt([
           {
             name: "firstName",
@@ -256,21 +324,24 @@ function updateEmployeeRole() {
             },
             message: "What is the employee's first name? ",
           },
+          // ...and then asks for the role the employee is changing into from the generated list of roles...
           {
             name: "role",
             type: "list",
             message: "What is the employees new role? ",
             choices: selectRole()
           },
-      ]).then(function(val) {
+      ])
+      // ...then the new employee role information is inserted into the employee table in column'role_id'
+      .then(function(val) {
         var roleId = selectRole().indexOf(val.role) + 1
-        console.log(roleId)
-        console.log(val.firstName)
-        console.log(val.role)
+        // ...but I am unclear on why there needs to be a .promise() before the query
         db.promise().query(`UPDATE employee SET role_id = ${roleId} WHERE first_name = '${val.firstName}'`)
         .then(console.log("Update Successful!"))
         .catch(err => console.log(err))
+        // ...again, the console.table shows the user exactly what he or she is adding...
             console.table(val)
+            // ...before taking us back to the top menu
             prompt()
         })
   
